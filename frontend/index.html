@@ -1,335 +1,253 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Background Remover</title>
+    <title>AI Background Remover Pro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #007bff;
-            --primary-hover: #0056b3;
-            --light-gray: #f8f9fa;
-            --gray: #6c757d;
-            --dark-gray: #343a40;
-            --border-color: #dee2e6;
-            --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        body {
-            font-family: 'Sarabun', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 1rem;
-            background-color: var(--light-gray);
-            color: var(--dark-gray);
-        }
-
-        .container {
-            width: 100%;
-            max-width: 900px;
-        }
-
-        .card {
-            background: white;
-            padding: 2rem 2.5rem;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        h1 {
-            font-weight: 700;
-            margin-top: 0;
-            margin-bottom: 0.5rem;
-        }
-        
-        h1 span {
-            color: var(--primary-color);
-        }
-
-        p.subtitle {
-            margin-top: 0;
-            margin-bottom: 2rem;
-            color: var(--gray);
-            font-size: 1.1rem;
-        }
-
-        /* Custom File Upload */
-        .file-upload-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-            margin-bottom: 1.5rem;
-        }
-        
-        .file-upload-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 3rem 1rem;
-            border: 2px dashed var(--border-color);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .file-upload-label:hover {
-            border-color: var(--primary-color);
-            background-color: #f8f9fa99;
-        }
-
-        .file-upload-label svg {
-            width: 40px;
-            height: 40px;
-            margin-right: 1rem;
-            color: var(--gray);
-        }
-
-        #image-input {
-            display: none;
-        }
-
-        .action-button {
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 500;
-            font-family: 'Sarabun', sans-serif;
-            cursor: pointer;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .action-button:hover:not(:disabled) {
-            background-color: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-        }
-
-        .action-button:disabled {
-            background-color: #a0c3ff;
-            cursor: not-allowed;
-        }
-        
-        /* Image Previews */
-        .image-previews {
-            display: none; /* Hidden by default */
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 2.5rem;
-            text-align: left;
-        }
-
-        .preview-box {
-            position: relative;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .preview-box h3 {
-            margin-top: 0;
-            margin-bottom: 1rem;
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--gray);
-            text-align: center;
-        }
-
-        .preview-box img {
-            display: block;
-            width: 100%;
-            height: auto;
-            border-radius: 4px;
-        }
-        
-        /* Loader */
-        .loader-container {
-             position: absolute;
-             top: 0;
-             left: 0;
-             right: 0;
-             bottom: 0;
-             background-color: rgba(255, 255, 255, 0.8);
-             display: flex;
-             align-items: center;
-             justify-content: center;
-             border-radius: 8px;
-             z-index: 10;
-        }
-
-        .loader {
-            width: 48px;
-            height: 48px;
-            border: 5px solid var(--primary-color);
-            border-bottom-color: transparent;
-            border-radius: 50%;
-            display: inline-block;
-            box-sizing: border-box;
-            animation: rotation 1s linear infinite;
-        }
-        
-        #download-btn {
-            display: none; /* Hidden by default */
-            margin-top: 1rem;
-            text-decoration: none;
-        }
-        
-        @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .image-previews {
-                grid-template-columns: 1fr;
-            }
-            .card {
-                padding: 1.5rem;
-            }
-            h1 { font-size: 1.8rem; }
-            p.subtitle { font-size: 1rem; }
-        }
+        :root { --primary-color: #007bff; --primary-hover: #0056b3; --light-gray: #f8f9fa; --gray: #6c757d; --dark-gray: #343a40; --border-color: #dee2e6; --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); }
+        body { font-family: 'Sarabun', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 1rem; background-color: var(--light-gray); color: var(--dark-gray); }
+        .container { width: 100%; max-width: 900px; }
+        .card { background: white; padding: 2rem 2.5rem; border-radius: 12px; box-shadow: var(--card-shadow); text-align: center; }
+        h1 { font-weight: 700; margin-top: 0; margin-bottom: 0.5rem; }
+        h1 span { color: var(--primary-color); }
+        p.subtitle { margin-top: 0; margin-bottom: 2rem; color: var(--gray); font-size: 1.1rem; }
+        .tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
+        .tab-button { background: none; border: none; padding: 1rem; font-size: 1rem; font-family: 'Sarabun', sans-serif; cursor: pointer; color: var(--gray); border-bottom: 3px solid transparent; }
+        .tab-button.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+        .url-input-group { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .url-input { flex-grow: 1; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; }
+        .file-upload-wrapper { position: relative; display: inline-block; width: 100%; margin-bottom: 1.5rem; }
+        .file-upload-label { display: flex; align-items: center; justify-content: center; width: 100%; padding: 3rem 1rem; border: 2px dashed var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+        .file-upload-label:hover { border-color: var(--primary-color); background-color: #f8f9fa99; }
+        .file-upload-label svg { width: 40px; height: 40px; margin-right: 1rem; color: var(--gray); }
+        #image_fg, #image_bg { display: none; }
+        .options-panel { background-color: var(--light-gray); padding: 1.5rem; border-radius: 8px; margin-top: 1.5rem; text-align: left; }
+        .options-panel h3 { margin-top: 0; margin-bottom: 1rem; text-align: center; }
+        .option-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+        .option-group label { font-weight: 500; }
+        .color-picker { width: 100px; height: 38px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; }
+        .bg-image-label { padding: 0.5rem 1rem; background: white; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; }
+        .action-button { width: 100%; padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 500; font-family: 'Sarabun', sans-serif; cursor: pointer; background-color: var(--primary-color); color: white; border: none; border-radius: 8px; transition: all 0.3s ease; margin-top: 1.5rem;}
+        .action-button:hover:not(:disabled) { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); }
+        .action-button:disabled { background-color: #a0c3ff; cursor: not-allowed; }
+        .image-previews { display: none; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2.5rem; text-align: left; }
+        .preview-box { position: relative; border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; }
+        .preview-box h3 { margin-top: 0; margin-bottom: 1rem; font-size: 1rem; font-weight: 500; color: var(--gray); text-align: center; }
+        .preview-box img { display: block; width: 100%; height: auto; border-radius: 4px; }
+        .loader-container { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; border-radius: 8px; z-index: 10; }
+        .loader { width: 48px; height: 48px; border: 5px solid var(--primary-color); border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
+        #download-btn { display: none; margin-top: 1rem; text-decoration: none; width: auto; }
+        @keyframes rotation { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media (max-width: 768px) { .image-previews { grid-template-columns: 1fr; } .card { padding: 1.5rem; } }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
-            <h1>🖼️ AI Background <span>Remover</span></h1>
-            <p class="subtitle">อัปโหลดรูปภาพเพื่อลบพื้นหลังด้วย Go + Python</p>
+            <h1>🖼️ AI Background <span>Remover Pro</span></h1>
+            <p class="subtitle">เครื่องมือแก้ไขพื้นหลังรูปภาพด้วย Go + Python</p>
             
+            <div class="tabs">
+                <button class="tab-button active" onclick="openTab(event, 'upload-tab')">อัปโหลดไฟล์</button>
+                <button class="tab-button" onclick="openTab(event, 'url-tab')">ใช้ URL</button>
+            </div>
+
             <form id="upload-form">
-                <div class="file-upload-wrapper">
-                    <label for="image-input" class="file-upload-label">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                        </svg>
-                        <span id="file-name">คลิกเพื่อเลือกไฟล์ หรือลากมาวาง</span>
-                    </label>
-                    <input type="file" id="image-input" name="image" accept="image/*" required>
+                <div id="upload-tab" class="tab-content active">
+                    <div class="file-upload-wrapper">
+                        <label for="image_fg" class="file-upload-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+                            <span id="file-name-fg">เลือกรูปภาพหลัก</span>
+                        </label>
+                        <input type="file" id="image_fg" name="image_fg" accept="image/*">
+                    </div>
                 </div>
-                <button type="submit" id="submit-btn" class="action-button" disabled>ลบพื้นหลัง</button>
+
+                <div id="url-tab" class="tab-content">
+                    <div class="url-input-group">
+                        <input type="url" id="image_url" class="url-input" placeholder="วางลิงก์รูปภาพที่นี่...">
+                    </div>
+                </div>
+                
+                <div class="options-panel">
+                    <h3>ปรับแต่งพื้นหลัง (ไม่จำเป็น)</h3>
+                    <div class="option-group">
+                        <label for="bg_color">เลือกสีพื้นหลัง</label>
+                        <input type="color" id="bg_color" name="bg_color" value="#ffffff" class="color-picker">
+                    </div>
+                    <div class="option-group">
+                        <label for="image_bg">เลือกภาพพื้นหลัง</label>
+                        <label for="image_bg" class="bg-image-label" id="file-name-bg">เลือกไฟล์</label>
+                        <input type="file" id="image_bg" name="image_bg" accept="image/*">
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="action-button" disabled>ลบและปรับแต่งพื้นหลัง</button>
             </form>
 
             <div class="image-previews" id="previews-container">
                 <div class="preview-box">
                     <h3>ต้นฉบับ</h3>
-                    <img id="original-image" src="#" alt="Original Image Preview">
+                    <img id="original-image" src="#" alt="Original Preview">
                 </div>
                 <div class="preview-box" id="result-box">
                     <h3>ผลลัพธ์</h3>
-                    <img id="result-image" src="#" alt="Result Image Preview">
-                    <div class="loader-container" style="display: none;">
-                        <div class="loader"></div>
-                    </div>
+                    <img id="result-image" src="#" alt="Result Preview">
+                    <div class="loader-container" style="display: none;"><div class="loader"></div></div>
                 </div>
             </div>
-             <a id="download-btn" href="#" download="no-bg.png" class="action-button">
-                ดาวน์โหลด
-            </a>
+             <a id="download-btn" href="#" download="result.png" class="action-button">ดาวน์โหลด</a>
         </div>
     </div>
 
     <script>
+        // DOM Elements
         const uploadForm = document.getElementById('upload-form');
-        const imageInput = document.getElementById('image-input');
+        const imageFgInput = document.getElementById('image_fg');
+        const imageBgInput = document.getElementById('image_bg');
         const submitBtn = document.getElementById('submit-btn');
-        const fileNameSpan = document.getElementById('file-name');
-
+        const fileNameFgSpan = document.getElementById('file-name-fg');
+        const fileNameBgSpan = document.getElementById('file-name-bg');
+        const imageUrlInput = document.getElementById('image_url');
+        
         const previewsContainer = document.getElementById('previews-container');
         const originalImage = document.getElementById('original-image');
         const resultImage = document.getElementById('result-image');
-        const resultBox = document.getElementById('result-box');
-        
-        const loader = resultBox.querySelector('.loader-container');
+        const loader = document.querySelector('.loader-container');
         const downloadBtn = document.getElementById('download-btn');
+        const colorPicker = document.getElementById('bg_color');
 
-        // --- Step 1: Handle file selection and preview ---
-        imageInput.addEventListener('change', () => {
-            const file = imageInput.files[0];
-            if (file) {
-                // Show file name
-                fileNameSpan.textContent = file.name;
-                
-                // Show original image preview
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    originalImage.src = e.target.result;
-                    previewsContainer.style.display = 'grid';
-                    resultImage.src = "#"; // Clear previous result
-                    downloadBtn.style.display = 'none';
-                };
-                reader.readAsDataURL(file);
+        let currentTab = 'upload-tab';
 
-                // Enable submit button
-                submitBtn.disabled = false;
+        // --- Tab Logic ---
+        function openTab(evt, tabName) {
+            currentTab = tabName;
+            let i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
             }
-        });
+            tablinks = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+            updateSubmitButtonState();
+        }
 
-        // --- Step 2: Handle form submission ---
+        // --- Event Listeners ---
+        imageFgInput.addEventListener('change', () => handleFileChange(imageFgInput, fileNameFgSpan, true));
+        imageBgInput.addEventListener('change', () => handleFileChange(imageBgInput, fileNameBgSpan, false));
+        imageUrlInput.addEventListener('input', updateSubmitButtonState);
+        colorPicker.addEventListener('input', () => { imageBgInput.value = ''; fileNameBgSpan.textContent = 'เลือกไฟล์'; });
+
+        function handleFileChange(inputElement, nameSpan, isForeground) {
+            const file = inputElement.files[0];
+            if (file) {
+                nameSpan.textContent = file.name;
+                if (isForeground) {
+                    displayPreview(file);
+                    colorPicker.value = '#ffffff'; // Reset color picker if fg changes
+                } else {
+                     colorPicker.value = '#ffffff'; // Reset if bg image is chosen
+                }
+            }
+            updateSubmitButtonState();
+        }
+
+        function displayPreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                originalImage.src = e.target.result;
+                previewsContainer.style.display = 'grid';
+                resultImage.src = "#";
+                downloadBtn.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function updateSubmitButtonState() {
+            const isUploadTabValid = currentTab === 'upload-tab' && imageFgInput.files.length > 0;
+            const isUrlTabValid = currentTab === 'url-tab' && imageUrlInput.value.trim() !== '';
+            submitBtn.disabled = !(isUploadTabValid || isUrlTabValid);
+        }
+
         uploadForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-            
-            if (!imageInput.files[0]) {
-                alert('กรุณาเลือกไฟล์รูปภาพก่อน');
-                return;
-            }
-            
-            // Show loader and disable button
             loader.style.display = 'flex';
             submitBtn.disabled = true;
             downloadBtn.style.display = 'none';
+            
+            if (currentTab === 'upload-tab') {
+                await processFormData();
+            } else if (currentTab === 'url-tab') {
+                await processUrlData();
+            }
+        });
 
-            const formData = new FormData(uploadForm);
+        async function processFormData() {
+            const formData = new FormData();
+            formData.append('image_fg', imageFgInput.files[0]);
+            
+            // Append background image or color, not both
+            if (imageBgInput.files.length > 0) {
+                 formData.append('image_bg', imageBgInput.files[0]);
+            } else if (colorPicker.value !== '#ffffff') {
+                 formData.append('bg_color', colorPicker.value);
+            }
 
-            try {
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData,
-                });
+            fetchAndHandleResult('/upload', { method: 'POST', body: formData });
+        }
 
-                if (!response.ok) {
-                    throw new Error(`เกิดข้อผิดพลาด: ${response.statusText}`);
-                }
+        async function processUrlData() {
+            // Since we can't easily send URL + background options to the fetch-from-url endpoint,
+            // we'll handle only the URL processing for simplicity.
+            // A more advanced version might download the image client-side and then use FormData.
+            const url = imageUrlInput.value;
+            displayPreviewFromUrl(url); // Show preview for URL
+            
+            fetchAndHandleResult('/fetch-from-url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url })
+            });
+        }
+        
+        async function displayPreviewFromUrl(url) {
+             try {
+                // Use a proxy or server-side fetch if CORS is an issue. For now, we hope it works.
+                originalImage.src = url;
+                previewsContainer.style.display = 'grid';
+                resultImage.src = "#";
+                downloadBtn.style.display = 'none';
+            } catch(e) { console.error("Could not display preview from URL", e)}
+        }
 
+        async function fetchAndHandleResult(endpoint, options) {
+             try {
+                const response = await fetch(endpoint, options);
+                if (!response.ok) { throw new Error(`เกิดข้อผิดพลาด: ${response.statusText}`); }
                 const imageBlob = await response.blob();
                 const imageUrl = URL.createObjectURL(imageBlob);
-                
-                // Display result image
                 resultImage.src = imageUrl;
-                
-                // Show and enable download button
                 downloadBtn.href = imageUrl;
                 downloadBtn.style.display = 'inline-block';
-
             } catch (error) {
                 console.error('Error:', error);
                 alert('เกิดข้อผิดพลาดขณะประมวลผลรูปภาพ');
             } finally {
-                // Hide loader and re-enable submit button
                 loader.style.display = 'none';
-                submitBtn.disabled = false;
+                updateSubmitButtonState();
             }
-        });
+        }
     </script>
 </body>
 </html>

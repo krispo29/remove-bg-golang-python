@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"log"
 	"mime/multipart"
@@ -9,10 +10,10 @@ import (
 )
 
 func main() {
-	// Serve a simple frontend
 	http.Handle("/", http.FileServer(http.Dir("./frontend")))
-	// Handle image uploads
 	http.HandleFunc("/upload", uploadHandler)
+	// เพิ่ม endpoint ใหม่สำหรับ URL
+	http.HandleFunc("/fetch-from-url", fetchFromURLHandler)
 
 	log.Println("Go server started on :8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
@@ -20,38 +21,97 @@ func main() {
 	}
 }
 
+// uploadHandler จัดการการอัปโหลดไฟล์
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	file, header, err := r.FormFile("image")
-	if err != nil {
-		http.Error(w, "Could not get uploaded file", http.StatusBadRequest)
-		return
-	}
-	defer file.Close()
+	// กำหนดขนาด request สูงสุด (เช่น 30MB)
+	r.ParseMultipartForm(30 << 20)
 
-	// Prepare a new multipart writer
+	// สร้าง body ของ request ที่จะส่งไปหา Python
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile("image", header.Filename)
+
+	// 1. จัดการไฟล์ภาพหลัก (image_fg)
+	fgFile, fgHeader, err := r.FormFile("image_fg")
 	if err != nil {
-		http.Error(w, "Could not create form file", http.StatusInternalServerError)
+		http.Error(w, "Could not get foreground image", http.StatusBadRequest)
 		return
 	}
-	io.Copy(part, file)
+	defer fgFile.Close()
+	partFg, _ := writer.CreateFormFile("image_fg", fgHeader.Filename)
+	io.Copy(partFg, fgFile)
+
+	// 2. จัดการไฟล์ภาพพื้นหลัง (image_bg) ถ้ามี
+	bgFile, bgHeader, err := r.FormFile("image_bg")
+	if err == nil { // ไม่มี error หมายความว่ามีไฟล์ส่งมา
+		defer bgFile.Close()
+		partBg, _ := writer.CreateFormFile("image_bg", bgHeader.Filename)
+		io.Copy(partBg, bgFile)
+	}
+
+	// 3. จัดการสีพื้นหลัง (bg_color) ถ้ามี
+	bgColor := r.FormValue("bg_color")
+	if bgColor != "" {
+		writer.WriteField("bg_color", bgColor)
+	}
+
 	writer.Close()
 
-	// Forward the request to the Python service
+	// ส่งต่อไปยัง Python Service
+	forwardRequestToPython(w, body, writer.FormDataContentType())
+}
+
+// fetchFromURLHandler จัดการการดึงรูปจาก URL
+func fetchFromURLHandler(w http.ResponseWriter, r *http.Request) {
+	var payload struct {
+		URL string `json:"url"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	if payload.URL == "" {
+		http.Error(w, "URL is required", http.StatusBadRequest)
+		return
+	}
+
+	// ดาวน์โหลดรูปภาพจาก URL
+	resp, err := http.Get(payload.URL)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		http.Error(w, "Failed to download image from URL", http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	imgBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		http.Error(w, "Failed to read image data", http.StatusInternalServerError)
+		return
+	}
+
+	// สร้าง body เพื่อส่งไป Python
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, _ := writer.CreateFormFile("image_fg", "image_from_url.jpg")
+	part.Write(imgBytes)
+	writer.Close()
+
+	forwardRequestToPython(w, body, writer.FormDataContentType())
+}
+
+// ฟังก์ชันช่วยสำหรับส่ง request ไปยัง Python
+func forwardRequestToPython(w http.ResponseWriter, body io.Reader, contentType string) {
 	pythonServiceURL := "http://python-processor:5000/remove-bg"
 	req, err := http.NewRequest("POST", pythonServiceURL, body)
 	if err != nil {
 		http.Error(w, "Could not create request to Python service", http.StatusInternalServerError)
 		return
 	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("Content-Type", contentType)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -61,7 +121,12 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer resp.Body.Close()
 
-	// Return the processed image from the Python service to the client
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		http.Error(w, "Error from Python service: "+string(bodyBytes), resp.StatusCode)
+		return
+	}
+
 	w.Header().Set("Content-Type", "image/png")
 	io.Copy(w, resp.Body)
 }
