@@ -12,7 +12,6 @@ import (
 func main() {
 	http.Handle("/", http.FileServer(http.Dir("./frontend")))
 	http.HandleFunc("/upload", uploadHandler)
-	// เพิ่ม endpoint ใหม่สำหรับ URL
 	http.HandleFunc("/fetch-from-url", fetchFromURLHandler)
 
 	log.Println("Go server started on :8080")
@@ -28,10 +27,8 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// กำหนดขนาด request สูงสุด (เช่น 30MB)
 	r.ParseMultipartForm(30 << 20)
 
-	// สร้าง body ของ request ที่จะส่งไปหา Python
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 
@@ -47,7 +44,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 2. จัดการไฟล์ภาพพื้นหลัง (image_bg) ถ้ามี
 	bgFile, bgHeader, err := r.FormFile("image_bg")
-	if err == nil { // ไม่มี error หมายความว่ามีไฟล์ส่งมา
+	if err == nil {
 		defer bgFile.Close()
 		partBg, _ := writer.CreateFormFile("image_bg", bgHeader.Filename)
 		io.Copy(partBg, bgFile)
@@ -59,9 +56,14 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		writer.WriteField("bg_color", bgColor)
 	}
 
+	// 4. จัดการชื่อโมเดล (model_name) ถ้ามี
+	modelName := r.FormValue("model_name")
+	if modelName != "" {
+		writer.WriteField("model_name", modelName)
+	}
+
 	writer.Close()
 
-	// ส่งต่อไปยัง Python Service
 	forwardRequestToPython(w, body, writer.FormDataContentType())
 }
 
@@ -79,7 +81,6 @@ func fetchFromURLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ดาวน์โหลดรูปภาพจาก URL
 	resp, err := http.Get(payload.URL)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		http.Error(w, "Failed to download image from URL", http.StatusInternalServerError)
@@ -93,7 +94,6 @@ func fetchFromURLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// สร้าง body เพื่อส่งไป Python
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 	part, _ := writer.CreateFormFile("image_fg", "image_from_url.jpg")
